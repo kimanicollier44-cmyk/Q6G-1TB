@@ -13,6 +13,7 @@ Usage:
   python main.py dimixer     # DI-MIXER decoy device identities
   python main.py topology    # network management topology + SPOF
   python main.py flow        # all 4 Google Flows, plan only
+  python main.py ecosystem   # Kellar-Ecosystem: monitor + router + UI
   python main.py council     # Carbon 4 DECIDER + Muse advisor
   python main.py checks      # self-checks (exit 0 only if all pass)
   python main.py hold-demo   # shows a HOLD gate firing (exit 2)
@@ -23,8 +24,8 @@ import argparse
 import json
 import sys
 
-from q6g import (checks, council, dimixer, flow, gates, network6g, payloads,
-                 qkd, quantum, topology)
+from q6g import (checks, council, dimixer, ecosystem, flow, gates, network6g,
+                 payloads, qkd, quantum, topology)
 
 
 def _print(obj) -> None:
@@ -55,6 +56,8 @@ def cmd_demo(_args) -> int:
     _print({"all_flows_used": plan["all_flows_used"],
             "total_live_calls": plan["total_live_calls"],
             "anything_rendered": plan["anything_rendered"]})
+    print("== 🌐 KELLAR-ECOSYSTEM ==")
+    print(ecosystem.dashboard())
     print("== 🧠 COUNCIL ==")
     _print(council.council_run("live deployment", risk=90))
     print(f"⛔ HOLD gates armed: {len(gates.HOLD_GATES)}")
@@ -78,6 +81,14 @@ def cmd_topology(_args) -> int:
 
 def cmd_flow(_args) -> int:
     _print(flow.merged_plan())
+    return 0
+
+
+def cmd_ecosystem(_args) -> int:
+    print(ecosystem.dashboard())
+    _print({"router_samples": [ecosystem.route(t) for t in
+                               ("decision", "advice", "payload_triage", "network_map")],
+            "monitor": ecosystem.monitor()})
     return 0
 
 
@@ -138,7 +149,7 @@ def main(argv=None) -> int:
         ("demo", cmd_demo), ("quantum", cmd_quantum), ("network", cmd_network),
         ("speedtest", cmd_speedtest), ("qkd", cmd_qkd), ("sandbox", cmd_sandbox),
         ("dimixer", cmd_dimixer), ("topology", cmd_topology), ("flow", cmd_flow),
-        ("council", cmd_council),
+        ("ecosystem", cmd_ecosystem), ("council", cmd_council),
         ("checks", cmd_checks), ("hold-demo", cmd_hold_demo),
     ]:
         p = sub.add_parser(name)

@@ -1,7 +1,8 @@
 """Self-checks: every check is a real assertion over the real engines."""
 from __future__ import annotations
 
-from . import council, dimixer, flow, gates, network6g, payloads, qkd, quantum, topology
+from . import (council, dimixer, ecosystem, flow, gates, network6g, payloads,
+               qkd, quantum, topology)
 
 
 def run_checks() -> dict:
@@ -41,6 +42,9 @@ def run_checks() -> dict:
     check("topology_mesh_resilient", lambda: topology.analyse_topology("mesh", 8)["resilient"])
     check("flow_all_4_plan_only", lambda: _flow_ok())
     check("carbon4_full_seat_trace", lambda: _carbon_ok())
+    check("ecosystem_router_decision_to_carbon", lambda: ecosystem.route("decision")["seat"] == "carbon-4")
+    check("ecosystem_monitor_status_ok", lambda: ecosystem.monitor()["status"] == "OK")
+    check("ecosystem_dashboard_and_registry", lambda: _ecosystem_ok())
     passed = sum(1 for _, ok, _ in results if ok)
     return {"passed": passed, "total": len(results),
             "results": [{"check": n, "ok": ok, "detail": d} for n, ok, d in results],
@@ -75,6 +79,12 @@ def _dimixer_synthetic_ok() -> bool:
 def _flow_ok() -> bool:
     plan = flow.merged_plan()
     return plan["all_flows_used"] and plan["total_live_calls"] == 0 and not plan["anything_rendered"]
+
+
+def _ecosystem_ok() -> bool:
+    dash = ecosystem.dashboard()
+    return ("KELLAR-ECOSYSTEM" in dash and len(ecosystem.COMPONENTS) == 10
+            and ecosystem.threat_intake("t", b'{"code": "eval(x)"}')["verdict"] == "HOLD_IN_CHAMBER")
 
 
 def _carbon_ok() -> bool:

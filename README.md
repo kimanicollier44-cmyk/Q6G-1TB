@@ -4,13 +4,13 @@
 
 **🌐 A 6G network that targets 1 terabit per second, guarded by a quantum computer, with a sandbox-api chamber checking every payload before it is studied — all in one pure-Python project.**
 
-👨‍💻 By Darion Kellar · 📜 MIT License · 🐍 Python stdlib only, zero dependencies · 🏷️ v1.2.0
+👨‍💻 By Darion Kellar · 📜 MIT License · 🐍 Python stdlib only, zero dependencies · 🏷️ v1.3.0
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![GitHub](https://img.shields.io/badge/GitHub-credkellar%2FQ6G--1TB-181717?logo=github)
 
 ---
@@ -21,8 +21,8 @@ Two workflows ship in `workflow-pack/` — paste each one into `.github/workflow
 
 | Workflow | File to create | What it does |
 |---|---|---|
-| ✅ CI | `.github/workflows/ci.yml` | On every push + pull request: Python 3.12 → install pytest → `pytest tests/ -q` → `python main.py checks` |
-| 🐳 Docker Publish | `.github/workflows/docker-publish.yml` | On push to `main`: Docker Hub login from secrets → build + push `credkellar/q6g-1tb:latest` |
+| ✅ CI | `.github/workflows/ci.yml` | On push + pull request + manual run (`workflow_dispatch`, NEW): Python 3.12 → install pytest → `pytest tests/ -q` → `python main.py checks` → demo smoke test (NEW) |
+| 🐳 Docker Publish | `.github/workflows/docker-publish.yml` | On push to `main` + manual run (`workflow_dispatch`, NEW — publish on demand after adding secrets, no new push needed): Docker Hub login from secrets → build + push `credkellar/q6g-1tb:latest` |
 
 Secrets needed (repo → Settings → Secrets → Actions): `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
 
@@ -33,7 +33,7 @@ Secrets needed (repo → Settings → Secrets → Actions): `DOCKERHUB_USERNAME`
 
 ```mermaid
 flowchart LR
-    P[📤 Push to credkellar/Q6G-1TB] --> CI[✅ CI workflow<br/>pytest 21 + CHECKS 24/24]
+    P[📤 Push to credkellar/Q6G-1TB] --> CI[✅ CI workflow<br/>pytest 24 + CHECKS 27/27]
     P --> DP[🐳 Docker Publish workflow]
     DP --> S{🔑 DOCKERHUB secrets set?}
     S -->|yes| HUB[🐳 credkellar/q6g-1tb:latest]
@@ -44,8 +44,8 @@ flowchart LR
 
 ## 🧰 Tech Stack Badges & Full Architecture Tech Stack
 
-![pytest](https://img.shields.io/badge/pytest-21%20passed-brightgreen)
-![CHECKS](https://img.shields.io/badge/CHECKS-24%2F24-brightgreen)
+![pytest](https://img.shields.io/badge/pytest-24%20passed-brightgreen)
+![CHECKS](https://img.shields.io/badge/CHECKS-27%2F27-brightgreen)
 ![Quantum](https://img.shields.io/badge/quantum-12%20qubits-blueviolet)
 ![6G](https://img.shields.io/badge/6G-1%20Tbps%20modelled-cyan)
 ![HOLD gates](https://img.shields.io/badge/HOLD%20gates-16-red)
@@ -53,6 +53,7 @@ flowchart LR
 ![DI-MIXER](https://img.shields.io/badge/DI--MIXER-merged-purple)
 ![Google Flow](https://img.shields.io/badge/Google%20Flow-4%20flows%20plan--only-pink)
 ![Topology](https://img.shields.io/badge/topology-SPOF%20analysis-lightgrey)
+![Kellar-Ecosystem](https://img.shields.io/badge/Kellar--Ecosystem-merged-gold)
 
 ### 💻 Core Programming Languages & Core Systems
 - 🐍 **Python 3.12** — the whole system, one language
@@ -66,6 +67,7 @@ flowchart LR
 - 🎭 **DI-MIXER** — merged from `credkellar/di-mixerx` (227 pulls, Hub-verified 2026-11-10): synthetic decoy device identities; TEST-NET + documentation ranges only, never transmitted
 - 🗺️ **Network management topology** — engine ported from Darion's LLM-X-NetLab (bus / star / ring / mesh / tree + SPOF analysis), re-pointed at 6G management domains
 - 🎬 **Google Flow** — all 4 flows (FlowX, Workspace Studio, Filmmaking, DataX) as plan-only seats; rendered = False, live calls = 0
+- 🌐 **Kellar-Ecosystem** — merged from `credkellar/kellar-ecosystem` (341 pulls, Hub-verified 2026-11-10): real-time monitor + dynamic LLM router + threat-sandbox intake + text UI dashboard over all the seats above
 
 ### ⚙️ Platform Support & Hardware Architecture
 - 🖥️ **Any OS** that runs Python 3.12 (Linux, macOS, Windows, Termux)
@@ -80,7 +82,7 @@ flowchart LR
 ### 🔧 DevOps & Build Tools
 - ✅ **GitHub Actions CI** — pytest + self-checks (paste step, see Updated Workflows)
 - 🐳 **Docker Publish** — to Docker Hub `credkellar/q6g-1tb`
-- 🧪 **pytest** — 21 tests · 🔎 **built-in CHECKS** — 24/24
+- 🧪 **pytest** — 24 tests · 🔎 **built-in CHECKS** — 27/27
 
 ### ☁️ Cloud Providers
 - 🚫 **None required** — everything runs locally, offline
@@ -96,6 +98,7 @@ flowchart TD
     MAIN --> DM[🎭 dimixer.py]
     MAIN --> TP[🗺️ topology.py]
     MAIN --> FL[🎬 flow.py]
+    MAIN --> EC[🌐 ecosystem.py<br/>monitor + router + UI]
     MAIN --> C[🧠 council.py]
     MAIN --> G[⛔ gates.py]
     MAIN --> CH[🔎 checks.py]
@@ -136,8 +139,9 @@ Step by step, one `python main.py demo` run:
 10. 🎭 Raises a **DI-MIXER decoy pool** — 32 synthetic device identities (TEST-NET IPs, documentation IPv6, locally-administered MACs); a scanner sees only decoys, 0 real devices.
 11. 🗺️ Maps the **network topology** five ways (bus / star / ring / mesh / tree) and names every single point of failure — star's hub is the SPOF, mesh has none.
 12. 🎬 Plans with **all 4 Google Flows** — storyboard, docs and task plans; nothing rendered, 0 live calls.
-13. 🧠 Asks the **council**: Gemini Carbon 4 Extended Thinking decides (MAP → MODEL → STRESS → DECIDE), Muse advises with exactly 4 items (authority: none), strictest wins.
-14. ⛔ Confirms all **16 HOLD gates** are armed.
+13. 🌐 Opens the **Kellar-Ecosystem dashboard**: link, keys, chamber, decoys and maps monitored in one view, tasks routed to the right seat, status OK.
+14. 🧠 Asks the **council**: Gemini Carbon 4 Extended Thinking decides (MAP → MODEL → STRESS → DECIDE), Muse advises with exactly 4 items (authority: none), strictest wins.
+15. ⛔ Confirms all **16 HOLD gates** are armed.
 
 ## ⚙️ How this works?
 
@@ -172,6 +176,9 @@ Every payload is data only. The chamber writes it to a throwaway folder, runs a 
 ### 🎭 The decoys (DI-MIXER)
 A rotating pool of synthetic device identities stands in front of the real network. Every decoy is labelled SYNTHETIC, every IPv4 is from the RFC 5737 TEST-NET ranges, every IPv6 from the 2001:db8::/32 documentation prefix, and every MAC has the locally-administered bit set — so a decoy can never be, or be mistaken for, a real device. Nothing is transmitted; putting spoofed identifiers on a live network is a HOLD gate.
 
+### 🌐 The ecosystem layer (Kellar-Ecosystem)
+One seat watches and routes everything else: the **monitor** reads the link, the QKD key state, the chamber, the decoy pool and the topology reports and raises alerts (a SPOF in a model, a held payload, a missed target). The **dynamic router** sends each task type to its seat — decisions to Carbon 4, advice to Muse, payloads to the chamber, maps to topology — deterministically and offline. Threat intake goes through the chamber, and the **UI** is a text dashboard that renders the whole state in one screen.
+
 ### 🗺️ The topology map
 The management domain is modelled five ways. Star is cheapest and its hub (node 0) is a single point of failure; ring and mesh have no SPOF. The engine also computes link counts and worst-case hops per topology, so the trade-off is measured, not guessed.
 
@@ -199,7 +206,7 @@ Because it takes three things people usually only draw on slides — 6G, 1 Tbps,
 3. 🎓 **Quantum computing feels untouchable.** → Bell, GHZ, teleportation, and Grover run in ~180 lines of readable stdlib Python.
 4. 🔓 **Future networks need new security.** → BB84 shows quantum keys that expose eavesdroppers by physics, not by trust.
 5. 💣 **Studying unknown payloads is dangerous.** → The chamber analyses them as data only, in a throwaway folder, with budgets.
-6. 🧪 **Demos hide their failures.** → CHECKS (24/24) and pytest (21) are part of the program, and the demo prints raw outputs.
+6. 🧪 **Demos hide their failures.** → CHECKS (27/27) and pytest (24) are part of the program, and the demo prints raw outputs.
 7. 🏷️ **Simulations pretend to be measurements.** → Every output that is modelled or simulated says so in itself.
 8. 📦 **Big installs kill curiosity.** → Zero dependencies: clone, run, done.
 9. 🤖 **AI advisors get too much power in other systems.** → Here Muse advises and Carbon 4 decides; strictest wins, always.
@@ -240,14 +247,15 @@ Because it takes three things people usually only draw on slides — 6G, 1 Tbps,
    python main.py dimixer     # 🎭 DI-MIXER decoy pool + scanner view
    python main.py topology    # 🗺️ topology report + SPOF analysis
    python main.py flow        # 🎬 all 4 Google Flows, plan only
+   python main.py ecosystem   # 🌐 Kellar-Ecosystem dashboard + router
    python main.py council     # 🧠 Carbon 4 + Muse
-   python main.py checks      # 🔎 self-checks (CHECKS 24/24)
+   python main.py checks      # 🔎 self-checks (CHECKS 27/27)
    python main.py hold-demo   # ⛔ HOLD gate fires, exit 2
    ```
 5. 🧪 (Optional) Run the test suite:
    ```bash
    pip install pytest
-   python -m pytest tests/ -q   # 21 passed
+   python -m pytest tests/ -q   # 24 passed
    ```
 6. 🐳 (Optional) Run it in Docker:
    ```bash
@@ -279,6 +287,8 @@ The quantum computer also makes **magic keys** for locking messages. If a spy tr
 Before any new package is opened, it goes into a **glass box room** (the sandbox chamber). We look at it through the glass, take notes, and never, ever run it. If it looks dangerous, it stays in the box. 🧪
 
 There are also **toy robot phones** (the DI-MIXER decoys). They pretend to be real phones so nosy strangers look at the toys instead of your real phone. Every toy has a big label that says "TOY" — well, "SYNTHETIC" — and their numbers come from a special list that can never belong to a real phone. 🎭
+
+And there is a **control room** (Kellar-Ecosystem) with one big board that shows everything at once — the road, the keys, the glass box, the toys, the maps — and a smart front desk that sends every question to the right helper. 🌐
 
 And we draw **maps of the roads** (topology). On one map, all roads go through one middle town — if that town closes, nobody can travel. That is called a single point of failure. On the roundabout and spider-web maps, there is always another way around. 🗺️
 
@@ -413,6 +423,24 @@ flowchart TD
     E --> G[Summary: executed False,<br/>network attempts 0]
     F --> G
     I --> G
+    K --> G
+```
+
+### 🌐 `q6g/ecosystem.py` — Kellar-Ecosystem monitor + router + UI (merged)
+
+```mermaid
+flowchart TD
+    A[Monitor pass] --> B[Link + QKD + chamber +<br/>decoys + topology]
+    B --> C{Alerts?}
+    C -->|SPOF model / held payload /<br/>missed target| D[⚠️ Alert lines]
+    C -->|clean| E[Status OK]
+    F[Task arrives] --> G[Dynamic router]
+    G -->|decision| H[Carbon 4]
+    G -->|advice| I[Muse]
+    G -->|payload| J[Chamber]
+    G -->|map| K[Topology]
+    D --> L[Text dashboard UI]
+    E --> L
 ```
 
 ### 🧠 `q6g/council.py` — Gemini Carbon 4 Extended Thinking DECIDER + Muse advisor
@@ -440,7 +468,7 @@ flowchart TD
     B -->|local simulation| D[✅ Allowed]
 ```
 
-### 🔎 `q6g/checks.py` — self-checks (24/24)
+### 🔎 `q6g/checks.py` — self-checks (27/27)
 
 ```mermaid
 flowchart TD
@@ -450,6 +478,7 @@ flowchart TD
     A --> E[⛔ Gates = 13, live held, sim free]
     A --> F[🧪 Chamber never executes,<br/>network 0, holds 3, allows 4]
     A --> I[🎭 Decoys synthetic-only,<br/>🗺️ star SPOF / mesh resilient,<br/>🎬 flows plan-only, 🧠 Carbon trace]
+    A --> K[🌐 Router to Carbon,<br/>monitor OK, dashboard renders]
     B --> G[CHECKS passed / total]
     C --> G
     D --> G
@@ -457,7 +486,7 @@ flowchart TD
     F --> G
 ```
 
-### 🧪 `tests/test_q6g.py` — pytest suite (21 passed)
+### 🧪 `tests/test_q6g.py` — pytest suite (24 passed)
 
 ```mermaid
 flowchart TD
@@ -466,13 +495,15 @@ flowchart TD
     A --> D[2 QKD tests]
     A --> E[2 council + gates tests]
     A --> F[3 chamber tests]
-    A --> J[6 new: dimixer ×2, topology ×2,<br/>flow ×1, Carbon seat ×1]
-    B --> G[21 passed]
+    A --> J[6: dimixer ×2, topology ×2,<br/>flow ×1, Carbon seat ×1]
+    A --> K2[3: ecosystem router /<br/>monitor / intake + dashboard]
+    B --> G[24 passed]
     C --> G
     D --> G
     E --> G
     F --> G
     J --> G
+    K2 --> G
 ```
 
 ---
@@ -492,14 +523,15 @@ flowchart TD
 
 ## 🧪 Verified (actually run, not claimed)
 
-- ✅ `python -m pytest tests/ -q` → **21 passed**
-- ✅ `python main.py checks` → **CHECKS 24/24**, exit 0
+- ✅ `python -m pytest tests/ -q` → **24 passed**
+- ✅ `python main.py checks` → **CHECKS 27/27**, exit 0
 - ✅ `python main.py hold-demo` → HOLD fires, exit 2
 - ✅ `python main.py sandbox` → 7 payloads: **4 allowed / 3 held**, executed False, network 0
 - ✅ `python main.py dimixer` → 32 decoys, all synthetic ranges, scanner sees 0 real devices
 - ✅ `python main.py topology` → star SPOF = node 0; mesh resilient
 - ✅ `python main.py flow` → 4 flows, rendered False, live calls 0
-- 🏷️ Badges: 17 shields.io URLs checked live → **HTTP 200**; real workflow badge.svg URLs → 404 until the workflows are pasted (see Updated Workflows)
+- ✅ `python main.py ecosystem` → dashboard renders, monitor status OK, router sends decisions to Carbon 4
+- 🏷️ Badges: 18 shields.io URLs checked live → **HTTP 200**; real workflow badge.svg URLs → 404 until the workflows are pasted (see Updated Workflows)
 - 🐳 Docker: the Dockerfile is provided; the image build was **not** run on the build machine (no Docker there) — first build happens in the Docker Publish workflow
 
 ## 📁 Project structure
@@ -508,7 +540,7 @@ flowchart TD
 Q6G-1TB/
 ├── 🖼️ assets/
 │   └── cover.png            README cover (owner upload step — binary)
-├── 🚪 main.py               CLI entry point (demo/quantum/network/speedtest/qkd/sandbox/dimixer/topology/flow/council/checks/hold-demo)
+├── 🚪 main.py               CLI entry point (demo/quantum/network/speedtest/qkd/sandbox/dimixer/topology/flow/ecosystem/council/checks/hold-demo)
 ├── 📦 q6g/
 │   ├── ⚛️ quantum.py        statevector simulator, teleportation, Grover
 │   ├── 📡 network6g.py      bands, FSPL, Shannon capacity, slices, speed test
@@ -518,11 +550,12 @@ Q6G-1TB/
 │   ├── 🎭 dimixer.py        DI-MIXER decoy identities (di-mixerx merge)
 │   ├── 🗺️ topology.py       network management topology + SPOF (NetLab engine)
 │   ├── 🎬 flow.py           all 4 Google Flows, plan only
+│   ├── 🌐 ecosystem.py      Kellar-Ecosystem: monitor + router + UI
 │   ├── 🧠 council.py        Carbon 4 DECIDER + Muse advisor (authority: none)
 │   ├── ⛔ gates.py          16 HOLD gates
-│   └── 🔎 checks.py         24 self-checks
+│   └── 🔎 checks.py         27 self-checks
 ├── 🧪 tests/
-│   └── test_q6g.py          21 pytest tests
+│   └── test_q6g.py          24 pytest tests
 ├── 🔄 workflow-pack/
 │   ├── ci.yml               → paste to .github/workflows/ci.yml
 │   └── docker-publish.yml   → paste to .github/workflows/docker-publish.yml

@@ -3,7 +3,8 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from q6g import checks, council, dimixer, flow, gates, network6g, payloads, qkd, quantum, topology
+from q6g import (checks, council, dimixer, ecosystem, flow, gates, network6g,
+                 payloads, qkd, quantum, topology)
 
 
 def test_bell():
@@ -119,6 +120,26 @@ def test_carbon4_full_seat():
     assert d["phases"] == ["MAP", "MODEL", "STRESS", "DECIDE"]
     assert d["live_call_made"] is False
     assert len(council.MuseAdvisor().advise("t")["advice"]) == 4
+
+
+def test_ecosystem_router():
+    assert ecosystem.route("decision")["seat"] == "carbon-4"
+    assert ecosystem.route("advice")["seat"] == "muse"
+    assert ecosystem.route("payload_triage")["seat"] == "sandbox-api"
+    assert ecosystem.route("nonsense")["seat"] is None
+
+
+def test_ecosystem_monitor():
+    m = ecosystem.monitor()
+    assert m["status"] == "OK" and m["link_meets_target"] and m["live_network"] is False
+    assert m["decoys_active"] == 32
+
+
+def test_ecosystem_threat_intake_and_dashboard():
+    held = ecosystem.threat_intake("t", b'{"code": "socket.connect(x)"}')
+    assert held["verdict"] == "HOLD_IN_CHAMBER" and held["executed_sample_code"] is False
+    assert "KELLAR-ECOSYSTEM" in ecosystem.dashboard()
+    assert len(ecosystem.COMPONENTS) == 10
 
 
 def test_all_checks_pass():
