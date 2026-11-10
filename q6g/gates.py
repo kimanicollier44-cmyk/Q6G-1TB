@@ -19,6 +19,9 @@ HOLD_GATES = [
     ("safety_critical_control", "Controlling medical / safety-critical systems"),
     ("live_network_reconfiguration", "Reconfiguring a live network autonomously"),
     ("live_sample_detonation", "Detonating a live/unknown sample outside the static sandbox-api chamber"),
+    ("live_identifier_spoofing", "Deploying DI-MIXER spoofed device identifiers on a live network"),
+    ("live_video_generation", "Rendering/generating video with Google Flow or any live generator"),
+    ("live_gemini_api_call", "Calling the live Gemini / Carbon 4 API with a real key"),
 ]
 
 _GATE_NAMES = {name for name, _ in HOLD_GATES}

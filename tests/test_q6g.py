@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from q6g import checks, council, gates, network6g, payloads, qkd, quantum
+from q6g import checks, council, dimixer, flow, gates, network6g, payloads, qkd, quantum, topology
 
 
 def test_bell():
@@ -80,6 +80,45 @@ def test_chamber_verdicts():
     assert verdicts["quantum-circuit-bell"] == "ALLOW_STATIC_STUDY"
     assert verdicts["payload-eval-marker"] == "HOLD_IN_CHAMBER"
     assert verdicts["payload-socket-attempt"] == "HOLD_IN_CHAMBER"
+
+
+def test_dimixer_synthetic_ranges():
+    pool = dimixer.decoy_pool(16)
+    assert pool["all_synthetic"] and pool["unique_macs"] == 16
+    for ident in pool["identities"]:
+        assert ident["ipv4"].rsplit(".", 1)[0] in dimixer.TEST_NETS
+        assert ident["ipv6"].startswith("2001:db8:")
+        first = int(ident["mac"].split(":")[0], 16)
+        assert first & 0b10 and not first & 0b01
+
+
+def test_dimixer_scanner_view():
+    view = dimixer.scanner_view()
+    assert view["devices_seen"] == 32 and view["devices_real"] == 0
+
+
+def test_topology_star_spof():
+    result = topology.analyse_topology("star", 8)
+    assert result["single_points_of_failure"] == [0]
+
+
+def test_topology_mesh_resilient():
+    result = topology.analyse_topology("mesh", 8)
+    assert result["resilient"] and result["worst_case_hops"] == 1
+
+
+def test_flow_plan_only():
+    plan = flow.merged_plan()
+    assert plan["all_flows_used"] and plan["total_live_calls"] == 0
+    assert plan["anything_rendered"] is False
+
+
+def test_carbon4_full_seat():
+    d = council.Carbon4().decide(10)
+    assert d["model"] == "google/gemini-carbon-4-extended-pro-thinking"
+    assert d["phases"] == ["MAP", "MODEL", "STRESS", "DECIDE"]
+    assert d["live_call_made"] is False
+    assert len(council.MuseAdvisor().advise("t")["advice"]) == 4
 
 
 def test_all_checks_pass():

@@ -10,6 +10,9 @@ Usage:
   python main.py speedtest   # simulated speed test
   python main.py qkd         # BB84, clean vs eavesdropped
   python main.py sandbox     # sandbox-api chamber: payload triage
+  python main.py dimixer     # DI-MIXER decoy device identities
+  python main.py topology    # network management topology + SPOF
+  python main.py flow        # all 4 Google Flows, plan only
   python main.py council     # Carbon 4 DECIDER + Muse advisor
   python main.py checks      # self-checks (exit 0 only if all pass)
   python main.py hold-demo   # shows a HOLD gate firing (exit 2)
@@ -20,7 +23,8 @@ import argparse
 import json
 import sys
 
-from q6g import checks, council, gates, network6g, payloads, qkd, quantum
+from q6g import (checks, council, dimixer, flow, gates, network6g, payloads,
+                 qkd, quantum, topology)
 
 
 def _print(obj) -> None:
@@ -42,6 +46,15 @@ def cmd_demo(_args) -> int:
     _print({"clean": qkd.bb84(eve=False), "with_eve": qkd.bb84(eve=True)})
     print("== 🧪 SANDBOX-API CHAMBER ==")
     _print(payloads.run_chamber())
+    print("== 🎭 DI-MIXER DECOYS ==")
+    _print(dimixer.scanner_view())
+    print("== 🗺️ NETWORK TOPOLOGY ==")
+    _print(topology.management_report())
+    print("== 🎬 GOOGLE FLOW (plan only) ==")
+    plan = flow.merged_plan()
+    _print({"all_flows_used": plan["all_flows_used"],
+            "total_live_calls": plan["total_live_calls"],
+            "anything_rendered": plan["anything_rendered"]})
     print("== 🧠 COUNCIL ==")
     _print(council.council_run("live deployment", risk=90))
     print(f"⛔ HOLD gates armed: {len(gates.HOLD_GATES)}")
@@ -50,6 +63,21 @@ def cmd_demo(_args) -> int:
 
 def cmd_sandbox(_args) -> int:
     _print(payloads.run_chamber())
+    return 0
+
+
+def cmd_dimixer(_args) -> int:
+    _print({"pool": dimixer.decoy_pool(8), "scanner_view": dimixer.scanner_view()})
+    return 0
+
+
+def cmd_topology(_args) -> int:
+    _print(topology.management_report())
+    return 0
+
+
+def cmd_flow(_args) -> int:
+    _print(flow.merged_plan())
     return 0
 
 
@@ -109,6 +137,7 @@ def main(argv=None) -> int:
     for name, fn in [
         ("demo", cmd_demo), ("quantum", cmd_quantum), ("network", cmd_network),
         ("speedtest", cmd_speedtest), ("qkd", cmd_qkd), ("sandbox", cmd_sandbox),
+        ("dimixer", cmd_dimixer), ("topology", cmd_topology), ("flow", cmd_flow),
         ("council", cmd_council),
         ("checks", cmd_checks), ("hold-demo", cmd_hold_demo),
     ]:
