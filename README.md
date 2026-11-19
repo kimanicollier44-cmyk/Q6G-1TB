@@ -1,4 +1,4 @@
-![Q6G-1TB cover](assets/cover.png)
+![Q6G-1TB cover](IMG_5456.png)
 
 # 📡⚛️ Q6G-1TB — 6G 1 Tbps Internet Quantum Computer
 
